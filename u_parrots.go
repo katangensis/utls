@@ -602,6 +602,88 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 	}
 }
 
+type FakeApplicationSettingsExtension struct {
+}
+
+func NewestChromeHello() *tls.ClientHelloSpec {
+    return &tls.ClientHelloSpec{
+        CipherSuites: []uint16{
+            tls.GREASE_PLACEHOLDER,
+            tls.TLS_AES_128_GCM_SHA256,
+            tls.TLS_AES_256_GCM_SHA384,
+            tls.TLS_CHACHA20_POLY1305_SHA256,
+            tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+            tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+            tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+            tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+            tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+            tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+            tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+            tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+            tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
+            tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+            tls.TLS_RSA_WITH_AES_128_CBC_SHA,
+            tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+        },
+        CompressionMethods: []byte{0x00},
+        Extensions: []tls.TLSExtension{
+            &tls.UtlsGREASEExtension{},
+            &tls.SNIExtension{},
+            &tls.UtlsExtendedMasterSecretExtension{},
+            &tls.RenegotiationInfoExtension{Renegotiation: tls.RenegotiateOnceAsClient},
+            &tls.SupportedCurvesExtension{
+                Curves: []tls.CurveID{
+                    tls.CurveID(tls.GREASE_PLACEHOLDER),
+                    tls.X25519,
+                    tls.CurveP256,
+                    tls.CurveP384,
+                }},
+            &tls.SupportedPointsExtension{SupportedPoints: []byte{0x00}},
+            &tls.SessionTicketExtension{},
+            &tls.ALPNExtension{AlpnProtocols: []string{"h2", "http/1.1"}},
+            &tls.StatusRequestExtension{},
+            &tls.SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []utls.SignatureScheme{
+                tls.ECDSAWithP256AndSHA256,
+                tls.PSSWithSHA256,
+                tls.PKCS1WithSHA256,
+                tls.ECDSAWithP384AndSHA384,
+                tls.PSSWithSHA384,
+                tls.PKCS1WithSHA384,
+                tls.PSSWithSHA512,
+                tls.PKCS1WithSHA512,
+                //utls.PKCS1WithSHA1,
+            }},
+            &tls.SCTExtension{},
+            &tls.KeyShareExtension{
+                KeyShares: []tls.KeyShare{
+                    {Group: tls.CurveID(tls.GREASE_PLACEHOLDER), Data: []byte{0}},
+                    {Group: tls.X25519},
+                }},
+            &tls.PSKKeyExchangeModesExtension{
+                Modes: []uint8{
+                    tls.PskModeDHE,
+                }},
+            &tls.SupportedVersionsExtension{
+                Versions: []uint16{
+                    tls.GREASE_PLACEHOLDER,
+                    tls.VersionTLS13,
+                    tls.VersionTLS12,
+                    tls.VersionTLS11,
+                    tls.VersionTLS10,
+                }},
+            &tls.CompressCertificateExtension{
+                Algorithms: []tls.CertCompressionAlgo{
+                    tls.CertCompressionBrotli,
+                }},
+            &tls.FakeApplicationSettingsExtension{},
+            &tls.UtlsGREASEExtension{},
+            &tls.UtlsPaddingExtension{GetPaddingLen: tls.BoringPaddingStyle},
+        },
+        TLSVersMax: tls.VersionTLS13,
+        TLSVersMin: tls.VersionTLS10,
+    }
+}
+
 func (uconn *UConn) applyPresetByID(id ClientHelloID) (err error) {
 	var spec ClientHelloSpec
 	uconn.ClientHelloID = id
