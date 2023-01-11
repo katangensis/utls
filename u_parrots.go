@@ -357,6 +357,8 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
 			},
 		}, nil
+	case HellChromeNew:
+        return NewestChromeHello()
 	case HelloFirefox_55, HelloFirefox_56:
 		return ClientHelloSpec{
 			TLSVersMax: VersionTLS12,
